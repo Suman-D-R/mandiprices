@@ -91,7 +91,17 @@ const getCommodityImage = (commodity) => {
   const imageMap = {
     Rice: '/assets/rice.png',
     Tomato: '/assets/tomato.png',
-    Wheat: '/assets/wheat.png',
+    Banana: '/assets/banana.png',
+    Tapioca: '/assets/tapioca.png',
+    'Cowpea(Veg)': '/assets/cowpea.png',
+    Amphophalus: '/assets/yam.png',
+    Amaranthus: '/assets/yam.png',
+    'Paddy(Dhan)(Common)': '/assets/paddy.png',
+    'Cucumbar(Kheera)': '/assets/cucumber.png',
+    Apple: '/assets/apple.png',
+    Pumpkin: '/assets/pumpkin.png',
+    Pomegranate: '/assets/pomegranate.png',
+    'Bottle Gourd': '/assets/bottle-gourd.png',
     // Add more mappings as needed
   };
   return imageMap[commodity] || '/assets/default.png'; // Use a default image if not found
