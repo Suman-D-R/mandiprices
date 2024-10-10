@@ -47,6 +47,8 @@ import {
   Check,
   ChevronsUpDown,
   TrendingUp,
+  RotateCcw,
+  Filter,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -67,6 +69,33 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton'; // Add this import at the top of the file
 import { Label } from '@/components/ui/label';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
+import {
+  commoditiesArray,
+  districtsArray,
+  marketsArray,
+  statesArray,
+  varietiesArray,
+} from '@/lib/constants';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+
+// Add this function near the top of your component, after the imports
+const getCommodityImage = (commodity) => {
+  const imageMap = {
+    Rice: '/assets/rice.png',
+    Tomato: '/assets/tomato.png',
+    Wheat: '/assets/wheat.png',
+    // Add more mappings as needed
+  };
+  return imageMap[commodity] || '/assets/default.png'; // Use a default image if not found
+};
 
 export default function EnhancedHomeComponent() {
   const [isLoading, setIsLoading] = useState(true);
@@ -92,23 +121,33 @@ export default function EnhancedHomeComponent() {
   const [selectedVariety, setSelectedVariety] = useState('all');
   const [selectedGrade, setSelectedGrade] = useState('all');
 
-  const [states, setStates] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [markets, setMarkets] = useState([]);
-  const [varieties, setVarieties] = useState([]);
-  const [grades, setGrades] = useState([]);
+  const [states, setStates] = useState(statesArray);
+  const [districts, setDistricts] = useState(districtsArray);
+  const [markets, setMarkets] = useState(marketsArray);
+  const [commoditiy, setCommoditiy] = useState(commoditiesArray);
+  const [varieties, setVarieties] = useState(varietiesArray);
+  const [grades, setGrades] = useState(['FAQ', 'Local']);
+  const [limit, setLimit] = useState(20000);
+
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   const params = {
     'api-key': '579b464db66ec23bdd00000122ff16e7e3394772573f4047cabb7e79',
     format: 'json',
-    limit: 20000,
-    state: selectedState !== 'all' ? selectedState : '',
-    district: selectedDistrict !== 'all' ? selectedDistrict : '',
-    market: selectedMarket !== 'all' ? selectedMarket : '',
-    commodity: selectedCommodity !== 'all' ? selectedCommodity : '',
-    variety: selectedVariety !== 'all' ? selectedVariety : '',
-    grade: selectedGrade !== 'all' ? selectedGrade : '',
+    limit: limit,
     offset: null,
+    filters: {
+      ...(selectedState !== 'all' && { 'state.keyword': selectedState }),
+      ...(selectedDistrict !== 'all' && {
+        'district.keyword': selectedDistrict,
+      }),
+      ...(selectedMarket !== 'all' && { 'market.keyword': selectedMarket }),
+      ...(selectedCommodity !== 'all' && {
+        'commodity.keyword': selectedCommodity,
+      }),
+      ...(selectedVariety !== 'all' && { 'variety.keyword': selectedVariety }),
+      ...(selectedGrade !== 'all' && { 'grade.keyword': selectedGrade }),
+    },
   };
 
   useEffect(() => {
@@ -122,12 +161,12 @@ export default function EnhancedHomeComponent() {
       setTotalPages(Math.ceil((response.records || []).length / itemsPerPage));
       setIsLoading(false);
 
-      // Extract unique values for each parameter
-      setStates([...new Set(response.records.map((item) => item.state))]);
-      setDistricts([...new Set(response.records.map((item) => item.district))]);
-      setMarkets([...new Set(response.records.map((item) => item.market))]);
-      setVarieties([...new Set(response.records.map((item) => item.variety))]);
-      setGrades([...new Set(response.records.map((item) => item.grade))]);
+      // // Extract unique values for each parameter
+      // setStates([...new Set(response.records.map((item) => item.state))]);
+      // setDistricts([...new Set(response.records.map((item) => item.district))]);
+      // setMarkets([...new Set(response.records.map((item) => item.market))]);
+      // setVarieties([...new Set(response.records.map((item) => item.variety))]);
+      // setGrades([...new Set(response.records.map((item) => item.grade))]);
     };
     fetchData();
   }, [
@@ -137,6 +176,8 @@ export default function EnhancedHomeComponent() {
     selectedCommodity,
     selectedVariety,
     selectedGrade,
+    limit,
+    itemsPerPage,
   ]);
 
   const sortData = (key) => {
@@ -335,34 +376,48 @@ export default function EnhancedHomeComponent() {
     },
   };
 
-  // Add this new function to get the commodity symbol
-  const getCommoditySymbol = (commodity) => {
-    const symbolMap = {
-      Rice: '🍚',
-      Wheat: '🌾',
-      Maize: '🌽',
-      Jowar: '🌿',
-      Bajra: '🌾',
-      Ragi: '🌾',
-      Arhar: '🥜',
-      Tur: '🥜',
-      Urad: '🥜',
-      Moong: '🥜',
-      Masur: '🥜',
-      Gram: '🥜',
-      Groundnut: '🥜',
-      Mustard: '🌱',
-      Soyabean: '🫘',
-      Sunflower: '🌻',
-      Cotton: '🧵',
-      Jute: '🧵',
-      Sugarcane: '🍭',
-      Onion: '🧅',
-      Potato: '🥔',
-      Tomato: '🍅',
-      // Add more commodities and their symbols as needed
-    };
-    return symbolMap[commodity] || '🌿'; // Default to a generic plant symbol if not found
+  // Add this new function to reset all filters
+  const resetFilters = () => {
+    setSearchTerm('');
+    setSelectedState('all');
+    setSelectedDistrict('all');
+    setSelectedMarket('all');
+    setSelectedCommodity('all');
+    setSelectedVariety('all');
+    setSelectedGrade('all');
+    setPriceUnit('kg');
+    setItemsPerPage(10);
+    setViewMode('paginated');
+    setShowChart(false);
+    setSortConfig({ key: null, direction: 'ascending' });
+  };
+
+  const handleFilterChange = (filterType, value) => {
+    switch (filterType) {
+      case 'state':
+        setSelectedState(value);
+        break;
+      case 'district':
+        setSelectedDistrict(value);
+        break;
+      case 'market':
+        setSelectedMarket(value);
+        break;
+      case 'commodity':
+        setSelectedCommodity(value);
+        break;
+      case 'variety':
+        setSelectedVariety(value);
+        break;
+      case 'grade':
+        setSelectedGrade(value);
+        break;
+      case 'priceUnit':
+        setPriceUnit(value);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -372,6 +427,11 @@ export default function EnhancedHomeComponent() {
           Current Daily Price of Various Commodities
         </h2>
 
+        {/* Add this new div to display the total number of entries */}
+        <div className='text-sm text-muted-foreground mb-4'>
+          Total entries: {filteredData.length}
+        </div>
+
         <div className='flex flex-wrap justify-between items-center mb-4 gap-4'>
           <Input
             placeholder='Search...'
@@ -379,7 +439,103 @@ export default function EnhancedHomeComponent() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className='w-full md:w-64'
           />
-          <div className='flex flex-wrap items-center  gap-4'>
+          <div className='flex gap-4'>
+            <span className='hidden md:block'>
+              <Button
+                onClick={resetFilters}
+                variant='outline'
+                className='flex items-center'
+              >
+                <RotateCcw className='mr-2 h-4 w-4' />
+                Reset Filters
+              </Button>
+            </span>
+            <Button onClick={downloadCSV} className='flex items-center'>
+              <Download className='mr-2 h-4 w-4' />
+              Download CSV
+            </Button>
+            <Button
+              onClick={() => setShowChart(!showChart)}
+              className='flex items-center'
+            >
+              <BarChart2 className='mr-2 h-4 w-4' />
+              {showChart ? 'Hide Chart' : 'Show Chart'}
+            </Button>
+          </div>
+          {/* Hide these on mobile, show on desktop */}
+          <div className='hidden md:flex flex-wrap items-center gap-4'>
+            <Select value={priceUnit} onValueChange={setPriceUnit}>
+              <SelectTrigger className='w-[150px]'>
+                <SelectValue placeholder='Price unit' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='kg'>Price in Kg</SelectItem>
+                <SelectItem value='quintal'>Price in Quintal</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={selectedState} onValueChange={setSelectedState}>
+              <SelectTrigger className='w-[200px]'>
+                <SelectValue placeholder='Select State' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>All States</SelectItem>
+                {states.map((state) => (
+                  <SelectItem key={state} value={state}>
+                    {state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {/* Add similar Select components for district, commodity, grade, and varieties */}
+            <Select
+              value={selectedDistrict}
+              onValueChange={setSelectedDistrict}
+            >
+              <SelectTrigger className='w-[200px]'>
+                <SelectValue placeholder='Select District' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>All Districts</SelectItem>
+                {districts.map((district) => (
+                  <SelectItem key={district} value={district}>
+                    {district}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedMarket} onValueChange={setSelectedMarket}>
+              <SelectTrigger className='w-[200px]'>
+                <SelectValue placeholder='Select Market' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>All Markets</SelectItem>
+                {markets.map((market) => (
+                  <SelectItem key={market} value={market}>
+                    {market}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={selectedCommodity}
+              onValueChange={setSelectedCommodity}
+            >
+              <SelectTrigger className='w-[200px]'>
+                <SelectValue placeholder='Select Commodity' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>All Commodities</SelectItem>
+                {commoditiy.map((commodity) => (
+                  <SelectItem key={commodity} value={commodity}>
+                    {commodity}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Always visible on both mobile and desktop */}
+          <div className='flex flex-wrap items-center lg:gap-4 gap-2'>
             <Select
               value={itemsPerPage.toString()}
               onValueChange={(value) => setItemsPerPage(Number(value))}
@@ -402,115 +558,7 @@ export default function EnhancedHomeComponent() {
                 <SelectItem value='scroll'>Scroll</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={downloadCSV} className='flex items-center'>
-              <Download className='mr-2 h-4 w-4' />
-              Download CSV
-            </Button>
-            <Button
-              onClick={() => setShowChart(!showChart)}
-              className='flex items-center'
-            >
-              <BarChart2 className='mr-2 h-4 w-4' />
-              {showChart ? 'Hide Chart' : 'Show Chart'}
-            </Button>
-            <Select value={priceUnit} onValueChange={setPriceUnit}>
-              <SelectTrigger className='w-[150px]'>
-                <SelectValue placeholder='Price unit' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='kg'>Price in Kg</SelectItem>
-                <SelectItem value='quintal'>Price in Quintal</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
-
-          {/* Add new Select components for each parameter */}
-          <Select value={selectedState} onValueChange={setSelectedState}>
-            <SelectTrigger className='w-[200px]'>
-              <SelectValue placeholder='Select State' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>All States</SelectItem>
-              {states.map((state) => (
-                <SelectItem key={state} value={state}>
-                  {state}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
-            <SelectTrigger className='w-[200px]'>
-              <SelectValue placeholder='Select District' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>All Districts</SelectItem>
-              {districts.map((district) => (
-                <SelectItem key={district} value={district}>
-                  {district}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedMarket} onValueChange={setSelectedMarket}>
-            <SelectTrigger className='w-[200px]'>
-              <SelectValue placeholder='Select Market' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>All Markets</SelectItem>
-              {markets.map((market) => (
-                <SelectItem key={market} value={market}>
-                  {market}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={selectedCommodity}
-            onValueChange={setSelectedCommodity}
-          >
-            <SelectTrigger className='w-[200px]'>
-              <SelectValue placeholder='Select Commodity' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>All Commodities</SelectItem>
-              {uniqueCommodities.map((commodity) => (
-                <SelectItem key={commodity} value={commodity}>
-                  {commodity}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedVariety} onValueChange={setSelectedVariety}>
-            <SelectTrigger className='w-[200px]'>
-              <SelectValue placeholder='Select Variety' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>All Varieties</SelectItem>
-              {varieties.map((variety) => (
-                <SelectItem key={variety} value={variety}>
-                  {variety}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedGrade} onValueChange={setSelectedGrade}>
-            <SelectTrigger className='w-[200px]'>
-              <SelectValue placeholder='Select Grade' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>All Grades</SelectItem>
-              {grades.map((grade) => (
-                <SelectItem key={grade} value={grade}>
-                  {grade}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         {showChart && (
@@ -605,7 +653,7 @@ export default function EnhancedHomeComponent() {
           <>
             {/* Desktop view */}
             <div
-              className={`hidden md:block h-[600px] ${
+              className={`hidden md:block h-[450px] ${
                 viewMode === 'scroll' ? 'overflow-y-auto' : 'overflow-y-scroll'
               }`}
             >
@@ -701,7 +749,16 @@ export default function EnhancedHomeComponent() {
                       <TableCell>{item.district}</TableCell>
                       <TableCell>{item.market}</TableCell>
                       <TableCell>
-                        {getCommoditySymbol(item.commodity)} {item.commodity}
+                        <div className='flex items-center'>
+                          <Image
+                            src={getCommodityImage(item.commodity)}
+                            alt={item.commodity}
+                            width={20}
+                            height={20}
+                            className='mr-2'
+                          />
+                          {item.commodity}
+                        </div>
                       </TableCell>
                       <TableCell>{item.variety}</TableCell>
                       <TableCell>{item.grade}</TableCell>
@@ -745,12 +802,17 @@ export default function EnhancedHomeComponent() {
                     <Card key={index} className='overflow-hidden'>
                       <CardHeader className='p-4'>
                         <CardTitle className='text-lg flex justify-between items-center'>
-                          <span className='truncate'>
+                          <span className='truncate flex items-center'>
+                            <Image
+                              src={getCommodityImage(item.commodity)}
+                              alt={item.commodity}
+                              width={20}
+                              height={20}
+                              className='mr-2'
+                            />
                             {`${
                               (currentPage - 1) * itemsPerPage + index + 1
-                            }. ${getCommoditySymbol(item.commodity)} ${
-                              item.commodity
-                            }`}
+                            }. ${item.commodity}`}
                           </span>
                           <Button
                             variant='ghost'
@@ -867,6 +929,163 @@ export default function EnhancedHomeComponent() {
             )}
           </>
         )}
+      </div>
+
+      {/* Mobile filter drawer */}
+      <div className='md:hidden'>
+        <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant='outline'
+              size='icon'
+              className='fixed bottom-4 right-4 z-50'
+            >
+              <Filter className='h-4 w-4' />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side='bottom' className='h-[80vh] overflow-y-auto'>
+            <SheetHeader>
+              <SheetTitle>Filters</SheetTitle>
+              <SheetDescription>
+                Adjust your search filters here
+              </SheetDescription>
+            </SheetHeader>
+            <div className='py-4 space-y-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='state'>State</Label>
+                <Select value={selectedState} onValueChange={setSelectedState}>
+                  <SelectTrigger id='state'>
+                    <SelectValue placeholder='Select State' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All States</SelectItem>
+                    {states.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Add similar blocks for district, commodity, grade, and varieties */}
+              <div className='space-y-2'>
+                <Label htmlFor='priceUnit'>Price Unit</Label>
+                <Select value={priceUnit} onValueChange={setPriceUnit}>
+                  <SelectTrigger id='priceUnit'>
+                    <SelectValue placeholder='Price unit' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='kg'>Price in Kg</SelectItem>
+                    <SelectItem value='quintal'>Price in Quintal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor='district'>District</Label>
+                <Select
+                  value={selectedDistrict}
+                  onValueChange={setSelectedDistrict}
+                >
+                  <SelectTrigger id='district'>
+                    <SelectValue placeholder='Select District' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Districts</SelectItem>
+                    {districts.map((district) => (
+                      <SelectItem key={district} value={district}>
+                        {district}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor='market'>Market</Label>
+                <Select
+                  value={selectedMarket}
+                  onValueChange={setSelectedMarket}
+                >
+                  <SelectTrigger id='market'>
+                    <SelectValue placeholder='Select Market' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Markets</SelectItem>
+                    {markets.map((market) => (
+                      <SelectItem key={market} value={market}>
+                        {market}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor='commodity'>Commodity</Label>
+                <Select
+                  value={selectedCommodity}
+                  onValueChange={setSelectedCommodity}
+                >
+                  <SelectTrigger id='commodity'>
+                    <SelectValue placeholder='Select Commodity' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Commodities</SelectItem>
+                    {commoditiy.map((commodity) => (
+                      <SelectItem key={commodity} value={commodity}>
+                        {commodity}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor='variety'>Variety</Label>
+                <Select
+                  value={selectedVariety}
+                  onValueChange={setSelectedVariety}
+                >
+                  <SelectTrigger id='variety'>
+                    <SelectValue placeholder='Select Variety' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Varieties</SelectItem>
+                    {varieties.map((variety) => (
+                      <SelectItem key={variety} value={variety}>
+                        {variety}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor='grade'>Grade</Label>
+                <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+                  <SelectTrigger id='grade'>
+                    <SelectValue placeholder='Select Grade' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Grades</SelectItem>
+                    {grades.map((grade) => (
+                      <SelectItem key={grade} value={grade}>
+                        {grade}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                onClick={() => {
+                  resetFilters();
+                  setIsFilterSheetOpen(false);
+                }}
+                variant='outline'
+                className='w-full'
+              >
+                <RotateCcw className='mr-2 h-4 w-4' />
+                Reset Filters
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   );

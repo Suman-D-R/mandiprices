@@ -2,15 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, Menu, X } from 'lucide-react';
+import { Moon, Sun, Menu } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 function Header() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => setMounted(true), []);
 
@@ -31,9 +34,18 @@ function Header() {
   return (
     <header className='bg-background border-b'>
       <div className='container mx-auto px-4 py-4'>
-        <div className='flex justify-between items-center'>
-          <Link href='/' className='text-2xl font-bold text-primary'>
-            Mandi Prices
+        <div className='flex justify-between items-center '>
+          <Link
+            href='/'
+            className='text-2xl flex items-end justify-end gap-2 font-bold text-primary'
+          >
+            <Image
+              src='/assets/icon.png'
+              alt='Mandi Prices'
+              width={30}
+              height={30}
+            />
+            <span>Mandi Prices</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -42,7 +54,11 @@ function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className='text-foreground hover:text-primary transition-colors'
+                className={`transition-colors ${
+                  pathname === item.href
+                    ? 'text-primary font-semibold'
+                    : 'text-foreground hover:text-primary'
+                }`}
               >
                 {item.name}
               </Link>
@@ -76,7 +92,11 @@ function Header() {
                     <Link
                       key={item.name}
                       href={item.href}
-                      className='text-foreground hover:text-primary transition-colors'
+                      className={`transition-colors ${
+                        pathname === item.href
+                          ? 'text-primary font-semibold'
+                          : 'text-foreground hover:text-primary'
+                      }`}
                     >
                       {item.name}
                     </Link>
