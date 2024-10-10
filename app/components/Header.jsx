@@ -40,7 +40,7 @@ function Header() {
             className='text-2xl flex items-end justify-end gap-2 font-bold text-primary'
           >
             <Image
-              src='/assets/icon.png'
+              src='/assets/logo.png'
               alt='Mandi Prices'
               width={30}
               height={30}

@@ -97,6 +97,26 @@ const getCommodityImage = (commodity) => {
   return imageMap[commodity] || '/assets/default.png'; // Use a default image if not found
 };
 
+// Add this new component for mobile skeleton
+const MobileCardSkeleton = () => (
+  <div className='space-y-4'>
+    {[...Array(5)].map((_, index) => (
+      <Card key={index} className='overflow-hidden'>
+        <CardHeader className='p-4'>
+          <Skeleton className='h-6 w-3/4' />
+        </CardHeader>
+        <CardContent className='p-4 pt-0'>
+          <div className='space-y-2'>
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className='h-4 w-full' />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+);
+
 export default function EnhancedHomeComponent() {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState([]);
@@ -644,11 +664,14 @@ export default function EnhancedHomeComponent() {
         )}
 
         {isLoading ? (
-          <div className='hidden md:block h-[600px] overflow-y-auto'>
-            {' '}
-            {/* Add fixed height and overflow */}
-            <TableSkeleton />
-          </div>
+          <>
+            <div className='hidden md:block h-[600px] overflow-y-auto'>
+              <TableSkeleton />
+            </div>
+            <div className='md:hidden'>
+              <MobileCardSkeleton />
+            </div>
+          </>
         ) : (
           <>
             {/* Desktop view */}
@@ -783,108 +806,89 @@ export default function EnhancedHomeComponent() {
 
             {/* Mobile view */}
             <div className='md:hidden space-y-4'>
-              {isLoading
-                ? [...Array(5)].map((_, index) => (
-                    <Card key={index} className='overflow-hidden'>
-                      <CardHeader className='p-4'>
-                        <Skeleton className='h-6 w-3/4' />
-                      </CardHeader>
-                      <CardContent className='p-4 pt-0'>
-                        <div className='space-y-2'>
-                          {[...Array(4)].map((_, i) => (
-                            <Skeleton key={i} className='h-4 w-full' />
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                : getCurrentPageData().map((item, index) => (
-                    <Card key={index} className='overflow-hidden'>
-                      <CardHeader className='p-4'>
-                        <CardTitle className='text-lg flex justify-between items-center'>
-                          <span className='truncate flex items-center'>
-                            <Image
-                              src={getCommodityImage(item.commodity)}
-                              alt={item.commodity}
-                              width={20}
-                              height={20}
-                              className='mr-2'
-                            />
-                            {`${
-                              (currentPage - 1) * itemsPerPage + index + 1
-                            }. ${item.commodity}`}
-                          </span>
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            onClick={() => toggleCardExpansion(index)}
-                          >
-                            {expandedCards[index] ? (
-                              <ChevronUp className='h-4 w-4' />
-                            ) : (
-                              <ChevronDown className='h-4 w-4' />
-                            )}
-                          </Button>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className='p-4 pt-0'>
-                        <div className='grid grid-cols-2 gap-2'>
-                          <div>
-                            <p className='text-sm font-medium'>State:</p>
-                            <p className='text-sm truncate'>{item.state}</p>
-                          </div>
-                          <div>
-                            <p className='text-sm font-medium'>District:</p>
-                            <p className='text-sm truncate'>{item.district}</p>
-                          </div>
-                          <div>
-                            <p className='text-sm font-medium'>Market:</p>
-                            <p className='text-sm truncate'>{item.market}</p>
-                          </div>
-                          <div>
-                            <p className='text-sm font-medium'>Variety:</p>
-                            <p className='text-sm truncate'>{item.variety}</p>
-                          </div>
-                        </div>
-                        {expandedCards[index] && (
-                          <div className='mt-4 grid grid-cols-2 gap-2'>
-                            <div>
-                              <p className='text-sm font-medium'>Grade:</p>
-                              <p className='text-sm truncate'>{item.grade}</p>
-                            </div>
-                            <div>
-                              <p className='text-sm font-medium'>
-                                Arrival Date:
-                              </p>
-                              <p className='text-sm truncate'>
-                                {item.arrival_date}
-                              </p>
-                            </div>
-                            <div>
-                              <p className='text-sm font-medium'>Min Price:</p>
-                              <p className='text-sm truncate'>
-                                {formatPrice(item.min_price)}/{priceUnit}
-                              </p>
-                            </div>
-                            <div>
-                              <p className='text-sm font-medium'>Max Price:</p>
-                              <p className='text-sm truncate'>
-                                {formatPrice(item.max_price)}/{priceUnit}
-                              </p>
-                            </div>
-                            <div>
-                              <p className='text-sm font-medium'>
-                                Modal Price:
-                              </p>
-                              <p className='text-sm truncate'>
-                                {formatPrice(item.modal_price)}/{priceUnit}
-                              </p>
-                            </div>
-                          </div>
+              {getCurrentPageData().map((item, index) => (
+                <Card key={index} className='overflow-hidden'>
+                  <CardHeader className='p-4'>
+                    <CardTitle className='text-lg flex justify-between items-center'>
+                      <span className='truncate flex items-center'>
+                        <Image
+                          src={getCommodityImage(item.commodity)}
+                          alt={item.commodity}
+                          width={20}
+                          height={20}
+                          className='mr-2'
+                        />
+                        {`${(currentPage - 1) * itemsPerPage + index + 1}. ${
+                          item.commodity
+                        }`}
+                      </span>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => toggleCardExpansion(index)}
+                      >
+                        {expandedCards[index] ? (
+                          <ChevronUp className='h-4 w-4' />
+                        ) : (
+                          <ChevronDown className='h-4 w-4' />
                         )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className='p-4 pt-0'>
+                    <div className='grid grid-cols-2 gap-2'>
+                      <div>
+                        <p className='text-sm font-medium'>State:</p>
+                        <p className='text-sm truncate'>{item.state}</p>
+                      </div>
+                      <div>
+                        <p className='text-sm font-medium'>District:</p>
+                        <p className='text-sm truncate'>{item.district}</p>
+                      </div>
+                      <div>
+                        <p className='text-sm font-medium'>Market:</p>
+                        <p className='text-sm truncate'>{item.market}</p>
+                      </div>
+                      <div>
+                        <p className='text-sm font-medium'>Variety:</p>
+                        <p className='text-sm truncate'>{item.variety}</p>
+                      </div>
+                    </div>
+                    {expandedCards[index] && (
+                      <div className='mt-4 grid grid-cols-2 gap-2'>
+                        <div>
+                          <p className='text-sm font-medium'>Grade:</p>
+                          <p className='text-sm truncate'>{item.grade}</p>
+                        </div>
+                        <div>
+                          <p className='text-sm font-medium'>Arrival Date:</p>
+                          <p className='text-sm truncate'>
+                            {item.arrival_date}
+                          </p>
+                        </div>
+                        <div>
+                          <p className='text-sm font-medium'>Min Price:</p>
+                          <p className='text-sm truncate'>
+                            {formatPrice(item.min_price)}/{priceUnit}
+                          </p>
+                        </div>
+                        <div>
+                          <p className='text-sm font-medium'>Max Price:</p>
+                          <p className='text-sm truncate'>
+                            {formatPrice(item.max_price)}/{priceUnit}
+                          </p>
+                        </div>
+                        <div>
+                          <p className='text-sm font-medium'>Modal Price:</p>
+                          <p className='text-sm truncate'>
+                            {formatPrice(item.modal_price)}/{priceUnit}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
             </div>
 
             {/* Pagination */}
@@ -938,9 +942,9 @@ export default function EnhancedHomeComponent() {
             <Button
               variant='outline'
               size='icon'
-              className='fixed bottom-4 right-4 z-50'
+              className='fixed bottom-5 right-5 z-50'
             >
-              <Filter className='h-4 w-4' />
+              <Filter className='h-4 w-4 text-purple-500' />
             </Button>
           </SheetTrigger>
           <SheetContent side='bottom' className='h-[80vh] overflow-y-auto'>
