@@ -247,6 +247,25 @@ function Page() {
     setCurrentPage(page);
   };
 
+  function DataItem({ label, value }) {
+    return (
+      <div>
+        <p className='text-xs font-medium text-muted-foreground'>{label}</p>
+        <p className='text-sm font-medium truncate'>{value}</p>
+      </div>
+    );
+  }
+
+  function PriceItem({ label, value, unit }) {
+    return (
+      <div className='text-center'>
+        <p className='text-xs font-medium text-muted-foreground'>{label}</p>
+        <p className='text-sm font-bold'>{value}</p>
+        <p className='text-xs text-muted-foreground'>/{unit}</p>
+      </div>
+    );
+  }
+
   const getPageNumbers = () => {
     const pageNumbers = [];
     for (let i = 1; i <= totalPages; i++) {
@@ -583,96 +602,55 @@ function Page() {
 
               {/* Mobile view */}
               <div className='md:hidden space-y-4'>
-                {getCurrentPageData().map((item, index) => {
-                  console.log(item);
-                  return (
-                    <Card key={index} className='overflow-hidden'>
-                      <CardHeader className='p-4'>
-                        <CardTitle className='text-lg flex justify-between items-center'>
-                          <span className='truncate flex items-center'>
-                            <Image
-                              src={getCommodityImage(item.Commodity)}
-                              alt={item.Commodity}
-                              width={20}
-                              height={20}
-                              className='mr-2'
-                            />
-                            {`${
-                              (currentPage - 1) * itemsPerPage + index + 1
-                            }. ${item.Commodity}`}
-                          </span>
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            onClick={() => toggleCardExpansion(index)}
-                          >
-                            {expandedCards[index] ? (
-                              <ChevronUp className='h-4 w-4' />
-                            ) : (
-                              <ChevronDown className='h-4 w-4' />
-                            )}
-                          </Button>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className='p-4 pt-0'>
-                        <div className='grid grid-cols-2 gap-2'>
-                          <div>
-                            <p className='text-sm font-medium'>State:</p>
-                            <p className='text-sm truncate'>{item.State}</p>
-                          </div>
-                          <div>
-                            <p className='text-sm font-medium'>District:</p>
-                            <p className='text-sm truncate'>{item.District}</p>
-                          </div>
-                          <div>
-                            <p className='text-sm font-medium'>Market:</p>
-                            <p className='text-sm truncate'>{item.Market}</p>
-                          </div>
-                          <div>
-                            <p className='text-sm font-medium'>Variety:</p>
-                            <p className='text-sm truncate'>{item.Variety}</p>
-                          </div>
-                        </div>
-                        {expandedCards[index] && (
-                          <div className='mt-4 grid grid-cols-2 gap-2'>
-                            <div>
-                              <p className='text-sm font-medium'>Grade:</p>
-                              <p className='text-sm truncate'>{item.Grade}</p>
-                            </div>
-                            <div>
-                              <p className='text-sm font-medium'>
-                                Arrival Date:
-                              </p>
-                              <p className='text-sm truncate'>
-                                {item.arrival_date}
-                              </p>
-                            </div>
-                            <div>
-                              <p className='text-sm font-medium'>Min Price:</p>
-                              <p className='text-sm truncate'>
-                                {formatPrice(item.min_price)}/{priceUnit}
-                              </p>
-                            </div>
-                            <div>
-                              <p className='text-sm font-medium'>Max Price:</p>
-                              <p className='text-sm truncate'>
-                                {formatPrice(item.max_price)}/{priceUnit}
-                              </p>
-                            </div>
-                            <div>
-                              <p className='text-sm font-medium'>
-                                Modal Price:
-                              </p>
-                              <p className='text-sm truncate'>
-                                {formatPrice(item.modal_price)}/{priceUnit}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                {getCurrentPageData().map((item, index) => (
+                  <Card key={index} className='overflow-hidden'>
+                    <CardHeader className='p-4'>
+                      <CardTitle className='text-lg flex items-center space-x-2'>
+                        <span className='truncate'>
+                          {`${(currentPage - 1) * itemsPerPage + index + 1}. ${
+                            item.Commodity
+                          }`}
+                        </span>
+                        <Image
+                          src={getCommodityImage(item.Commodity)}
+                          alt={item.Commodity}
+                          width={24}
+                          height={24}
+                        />
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className='p-4 pt-0'>
+                      <div className='grid grid-cols-2 gap-y-3'>
+                        <DataItem label='State' value={item.State} />
+                        <DataItem label='District' value={item.District} />
+                        <DataItem label='Market' value={item.Market} />
+                        <DataItem label='Variety' value={item.Variety} />
+                        <DataItem label='Grade' value={item.Grade} />
+                        <DataItem
+                          label='Arrival Date'
+                          value={item.Arrival_Date}
+                        />
+                      </div>
+                      <div className='mt-4 grid grid-cols-3 gap-2 bg-muted p-2 rounded-md'>
+                        <PriceItem
+                          label='Min'
+                          value={formatPrice(item.Min_Price)}
+                          unit={priceUnit}
+                        />
+                        <PriceItem
+                          label='Max'
+                          value={formatPrice(item.Max_Price)}
+                          unit={priceUnit}
+                        />
+                        <PriceItem
+                          label='Modal'
+                          value={formatPrice(item.Modal_Price)}
+                          unit={priceUnit}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
 
               {/* Pagination */}

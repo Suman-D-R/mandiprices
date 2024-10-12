@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -20,52 +20,16 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { districtsArray } from '@/lib/constants';
+import { useMarkets } from './useMarkets'; // We'll create this custom hook
 
 export default function MarketsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [displayedMarkets, setDisplayedMarkets] = useState([]); // Markets to display
-  const [visibleCount, setVisibleCount] = useState(10); // Number of items to load initially
-  const observerRef = useRef(null); // Ref for the observer element
-
-  // Filter markets based on the search term
-  const filteredMarkets = districtsArray.filter((market) =>
-    market.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Handle initial loading and lazy loading more items
-  useEffect(() => {
-    // Show only a limited number of items initially or on search
-    setDisplayedMarkets(filteredMarkets.slice(0, visibleCount));
-  }, [searchTerm, visibleCount, filteredMarkets]);
-
-  // Lazy loading using Intersection Observer
-  const handleLazyLoading = useCallback((entries) => {
-    const [entry] = entries;
-
-    // If the observer element is visible, load more items
-    if (entry.isIntersecting) {
-      setVisibleCount((prevCount) => prevCount + 10); // Load 10 more items on scroll
-    }
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(handleLazyLoading, {
-      root: null, // Use the viewport as the root
-      rootMargin: '0px',
-      threshold: 1.0, // Trigger when the last item is fully visible
-    });
-
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observer.unobserve(observerRef.current);
-      }
-    };
-  }, [handleLazyLoading]);
+  const {
+    searchTerm,
+    setSearchTerm,
+    displayedMarkets,
+    filteredMarkets,
+    observerRef,
+  } = useMarkets();
 
   const containerVariants = {
     hidden: { opacity: 0 },
