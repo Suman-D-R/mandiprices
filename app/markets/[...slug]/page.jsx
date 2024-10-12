@@ -47,9 +47,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { Label } from '@/components/ui/label';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   ArrowUpDown,
+  CalendarIcon,
   ChevronDown,
   ChevronUp,
   Download,
@@ -57,6 +64,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { getCommodityImage } from '@/lib/utils';
+import { commoditiesArray } from '@/lib/constants';
 
 // Add these new components
 const TableSkeleton = () => (
@@ -87,11 +95,16 @@ function Page() {
     limit: 2000,
     offset: null,
     filters: {
-      'District.keyword': params.slug[0],
-      // Arrival_Date: `between.${format(fromDate, 'yyyy-MM-dd')}.${format(
-      //   toDate,
-      //   'yyyy-MM-dd'
-      // )}`,
+      'District.keyword': params.slug[0].replace(/%20/g, ' '),
+    },
+    range: {
+      Arrival_Date: {
+        gte: format(
+          new Date(new Date().setDate(new Date().getDate() - 3)),
+          'yyyy-MM-dd'
+        ),
+        lte: format(new Date(), 'yyyy-MM-dd'),
+      },
     },
   });
 
@@ -103,6 +116,10 @@ function Page() {
   const [selectedCommodity, setSelectedCommodity] = useState('all');
   const [selectedVariety, setSelectedVariety] = useState('all');
   const [selectedGrade, setSelectedGrade] = useState('all');
+  const [selectedDateFrom, setSelectedDateFrom] = useState(
+    new Date().setDate(new Date().getDate() - 3)
+  );
+  const [selectedDateTo, setSelectedDateTo] = useState(new Date());
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [viewMode, setViewMode] = useState('paginated');
   const [currentPage, setCurrentPage] = useState(1);
@@ -116,9 +133,6 @@ function Page() {
 
   // Dummy data for dropdowns (replace with actual data)
   const markets = ['Market 1', 'Market 2'];
-  const commodities = ['Commodity 1', 'Commodity 2'];
-  const varieties = ['Variety 1', 'Variety 2'];
-  const grades = ['Grade 1', 'Grade 2'];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -140,18 +154,32 @@ function Page() {
     fetchData();
   }, [apiParams]);
 
+  //api.data.gov.in/resource/35985678-0d79-46b4-9ed6-6f13308a1d24?format=json&api-key=579b464db66ec23bdd000001cdc3b564546246a772a26393094f5645&filters[State.keyword]=Karnataka&filters[District.keyword]=Mysore&range[Arrival_Date][gte]=2024-10-07&range[Arrival_Date][lte]=2024-10-09&sort[Market.keyword]=asc
+
   useEffect(() => {
-    setApiParams((prevParams) => ({
-      ...prevParams,
-      filters: {
-        ...prevParams.filters,
-        // Arrival_Date: `between.${format(fromDate, 'yyyy-MM-dd')}.${format(
-        //   toDate,
-        //   'yyyy-MM-dd'
-        // )}`,
-      },
-    }));
-  }, []);
+    if (selectedDateFrom && selectedDateTo) {
+      setApiParams((prevParams) => {
+        const newFilters = { ...prevParams.filters };
+
+        if (selectedCommodity !== 'all') {
+          newFilters['Commodity.keyword'] = selectedCommodity;
+        } else {
+          delete newFilters['Commodity.keyword'];
+        }
+
+        return {
+          ...prevParams,
+          filters: newFilters,
+          range: {
+            Arrival_Date: {
+              gte: format(selectedDateFrom, 'yyyy-MM-dd'),
+              lte: format(selectedDateTo, 'yyyy-MM-dd'),
+            },
+          },
+        };
+      });
+    }
+  }, [selectedDateFrom, selectedDateTo, selectedCommodity]);
 
   const sortData = (key) => {
     let direction = 'ascending';
@@ -263,7 +291,7 @@ function Page() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage className='text-lg'>
-              {params.slug[0]}
+              {params.slug[0].replace(/%20/g, ' ')}
             </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -271,7 +299,8 @@ function Page() {
       <div className={`min-h-screen bg`}>
         <div className='container mx-auto p-4'>
           <h2 className='text-2xl font-semibold mb-4'>
-            Price History of Various Commodities in {params.slug[0]}
+            Price History of Various Commodities in
+            {params.slug[0].replace(/%20/g, ' ')}
           </h2>
 
           {/* Add this new div to display the total number of entries */}
@@ -338,13 +367,50 @@ function Page() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value='all'>All Commodities</SelectItem>
-                  {commodities.map((commodity) => (
+                  {commoditiesArray.map((commodity) => (
                     <SelectItem key={commodity} value={commodity}>
                       {commodity}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id='date'
+                    variant={'outline'}
+                    className={`w-[300px] justify-start text-left font-normal ${
+                      !selectedDateFrom && 'text-muted-foreground'
+                    }`}
+                  >
+                    <CalendarIcon className='mr-2 h-4 w-4' />
+                    {selectedDateFrom && selectedDateTo ? (
+                      <>
+                        {format(selectedDateFrom, 'LLL dd, y')} -{' '}
+                        {format(selectedDateTo, 'LLL dd, y')}
+                      </>
+                    ) : (
+                      <span>Pick a date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='w-auto p-0' align='start'>
+                  <Calendar
+                    initialFocus
+                    mode='range'
+                    defaultMonth={selectedDateFrom || new Date()}
+                    selected={{
+                      from: selectedDateFrom,
+                      to: selectedDateTo,
+                    }}
+                    onSelect={({ from, to }) => {
+                      setSelectedDateFrom(from);
+                      setSelectedDateTo(to);
+                    }}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Always visible on both mobile and desktop */}

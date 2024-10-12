@@ -16,9 +16,7 @@ export default function Home() {
   return (
     <StoreProvider>
       <div className='bg-background '>
-        <Header />
         <HomeComponent />
-        <Footer />
       </div>
     </StoreProvider>
   );

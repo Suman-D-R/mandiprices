@@ -2,14 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mandiprices.in/</loc>
-    <lastmod>2023-06-01</lastmod>
+    <lastmod>2023-12-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+  </url>
   <url>
     <loc>https://mandiprices.in/terms</loc>
-    <lastmod>2023-06-01</lastmod>
+    <lastmod>2023-12-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Add more URLs as needed -->
+  <url>
+    <loc>https://mandiprices.in/markets</loc>
+    <lastmod>2023-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
