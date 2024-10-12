@@ -44,7 +44,7 @@ export default function TermsOfServicePage() {
     <div className='bg-gradient-to-br from-background-50 to-purple-300 min-h-screen'>
       <div className='container mx-auto px-4 py-12 max-w-4xl'>
         <motion.h1
-          className='text-4xl font-bold mb-8 text-center text-primary-800'
+          className=' font-bold mb-8 text-center text-2xl text-primary-800'
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -70,8 +70,8 @@ export default function TermsOfServicePage() {
                       href={`#${section.id}`}
                       className={`block py-1 px-2 rounded transition-colors ${
                         activeSection === section.id
-                          ? 'bg-indigo-100 text-indigo-800'
-                          : 'text-gray-600 hover:bg-indigo-50'
+                          ? 'bg-green-100 text-green-800'
+                          : 'text-gray-600 hover:bg-green-50'
                       }`}
                     >
                       {section.title}
@@ -89,7 +89,7 @@ export default function TermsOfServicePage() {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <section id='acceptance' className='mb-12'>
-              <h2 className='text-2xl font-semibold mb-4 text-primary-800'>
+              <h2 className=' font-semibold mb-4 text-primary-800'>
                 1. Acceptance of Terms
               </h2>
               <p className='mb-4 text-gray-700 leading-relaxed'>
@@ -102,7 +102,7 @@ export default function TermsOfServicePage() {
             </section>
 
             <section id='description' className='mb-12'>
-              <h2 className='text-2xl font-semibold mb-4 text-primary-800'>
+              <h2 className=' font-semibold mb-4 text-primary-800'>
                 2. Description of Service
               </h2>
               <p className='mb-4 text-gray-700 leading-relaxed'>
@@ -115,7 +115,7 @@ export default function TermsOfServicePage() {
             </section>
 
             <section id='modifications' className='mb-12'>
-              <h2 className='text-2xl font-semibold mb-4 text-primary-800'>
+              <h2 className=' font-semibold mb-4 text-primary-800'>
                 3. Modifications to Terms
               </h2>
               <p className='mb-4 text-gray-700 leading-relaxed'>
@@ -129,7 +129,7 @@ export default function TermsOfServicePage() {
             </section>
 
             <section id='privacy' className='mb-12'>
-              <h2 className='text-2xl font-semibold mb-4 text-primary-800'>
+              <h2 className=' font-semibold mb-4 text-primary-800'>
                 4. Privacy Policy
               </h2>
               <p className='mb-4 text-gray-700 leading-relaxed'>
@@ -140,7 +140,7 @@ export default function TermsOfServicePage() {
             </section>
 
             <section id='contact' className='mb-12'>
-              <h2 className='text-2xl font-semibold mb-4 text-primary-800'>
+              <h2 className=' font-semibold mb-4 text-primary-800'>
                 5. Contact Information
               </h2>
               <p className='mb-4 text-gray-700 leading-relaxed'>

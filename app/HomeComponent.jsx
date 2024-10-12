@@ -77,6 +77,7 @@ import {
   statesArray,
   varietiesArray,
 } from '@/lib/constants';
+import { getCommodityImage } from '@/lib/utils';
 import {
   Sheet,
   SheetContent,
@@ -85,27 +86,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-
-// Add this function near the top of your component, after the imports
-const getCommodityImage = (commodity) => {
-  const imageMap = {
-    Rice: '/assets/rice.png',
-    Tomato: '/assets/tomato.png',
-    Banana: '/assets/banana.png',
-    Tapioca: '/assets/tapioca.png',
-    'Cowpea(Veg)': '/assets/cowpea.png',
-    Amphophalus: '/assets/yam.png',
-    Amaranthus: '/assets/yam.png',
-    'Paddy(Dhan)(Common)': '/assets/paddy.png',
-    'Cucumbar(Kheera)': '/assets/cucumber.png',
-    Apple: '/assets/apple.png',
-    Pumpkin: '/assets/pumpkin.png',
-    Pomegranate: '/assets/pomegranate.png',
-    'Bottle Gourd': '/assets/bottle-gourd.png',
-    // Add more mappings as needed
-  };
-  return imageMap[commodity] || '/assets/default.png'; // Use a default image if not found
-};
 
 // Add this new component for mobile skeleton
 const MobileCardSkeleton = () => (
@@ -450,6 +430,9 @@ export default function EnhancedHomeComponent() {
     }
   };
 
+  // Inside the component, before the return statement:
+  const uniqueMarkets = useMemo(() => [...new Set(markets)], [markets]);
+
   return (
     <div className={`min-h-screen bg`}>
       <div className='container mx-auto p-4'>
@@ -539,7 +522,7 @@ export default function EnhancedHomeComponent() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='all'>All Markets</SelectItem>
-                {markets.map((market) => (
+                {uniqueMarkets.map((market) => (
                   <SelectItem key={market} value={market}>
                     {market}
                   </SelectItem>
@@ -903,7 +886,7 @@ export default function EnhancedHomeComponent() {
 
             {/* Pagination */}
             {viewMode === 'paginated' && filteredData.length > 0 && (
-              <Pagination className='mt-4 w-full flex lg:justify-end'>
+              <Pagination className='mt-4 w-full flex lg:justify-end cursor-pointer'>
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
@@ -1024,7 +1007,7 @@ export default function EnhancedHomeComponent() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value='all'>All Markets</SelectItem>
-                    {markets.map((market) => (
+                    {uniqueMarkets.map((market) => (
                       <SelectItem key={market} value={market}>
                         {market}
                       </SelectItem>

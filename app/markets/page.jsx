@@ -19,12 +19,12 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { marketsArray } from '@/lib/constants';
+import { districtsArray } from '@/lib/constants';
 
 export default function MarketsPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredMarkets = marketsArray.filter((market) =>
+  const filteredMarkets = districtsArray.filter((market) =>
     market.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
