@@ -14,6 +14,7 @@ function Header() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -28,6 +29,10 @@ function Header() {
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
+
+  const handleLinkClick = () => {
+    setIsOpen(false);
+  };
 
   if (!mounted) return null;
 
@@ -79,7 +84,7 @@ function Header() {
               )}
             </div>
 
-            <Sheet>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className='md:hidden'>
                 <Button variant='outline' size='icon'>
                   <Menu className='h-5 w-5' />
@@ -97,6 +102,7 @@ function Header() {
                           ? 'text-primary font-semibold'
                           : 'text-foreground hover:text-primary'
                       }`}
+                      onClick={handleLinkClick}
                     >
                       {item.name}
                     </Link>

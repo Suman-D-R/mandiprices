@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -24,10 +24,48 @@ import { districtsArray } from '@/lib/constants';
 
 export default function MarketsPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [displayedMarkets, setDisplayedMarkets] = useState([]); // Markets to display
+  const [visibleCount, setVisibleCount] = useState(10); // Number of items to load initially
+  const observerRef = useRef(null); // Ref for the observer element
 
+  // Filter markets based on the search term
   const filteredMarkets = districtsArray.filter((market) =>
     market.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Handle initial loading and lazy loading more items
+  useEffect(() => {
+    // Show only a limited number of items initially or on search
+    setDisplayedMarkets(filteredMarkets.slice(0, visibleCount));
+  }, [searchTerm, visibleCount, filteredMarkets]);
+
+  // Lazy loading using Intersection Observer
+  const handleLazyLoading = useCallback((entries) => {
+    const [entry] = entries;
+
+    // If the observer element is visible, load more items
+    if (entry.isIntersecting) {
+      setVisibleCount((prevCount) => prevCount + 10); // Load 10 more items on scroll
+    }
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleLazyLoading, {
+      root: null, // Use the viewport as the root
+      rootMargin: '0px',
+      threshold: 1.0, // Trigger when the last item is fully visible
+    });
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, [handleLazyLoading]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -98,7 +136,7 @@ export default function MarketsPage() {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <AnimatePresence>
-          {filteredMarkets.map((market) => (
+          {displayedMarkets.map((market) => (
             <motion.div
               key={market}
               variants={itemVariants}
@@ -116,7 +154,7 @@ export default function MarketsPage() {
                 </CardHeader>
                 <CardFooter className='mt-auto'>
                   <Button asChild className='w-full text-xs sm:text-sm'>
-                    <Link href={`/markets/${market}`}>View Commodities</Link>
+                    <Link href={`/markets/${market}`}>View Prices</Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -138,6 +176,9 @@ export default function MarketsPage() {
           </motion.p>
         )}
       </AnimatePresence>
+
+      {/* Lazy loading trigger */}
+      <div ref={observerRef} style={{ height: '20px', margin: '20px 0' }} />
     </motion.div>
   );
 }
