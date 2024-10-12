@@ -277,20 +277,16 @@ function Page() {
       <Breadcrumb className='mb-6 '>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href='/' className='text-lg'>
-              Home
-            </BreadcrumbLink>
+            <BreadcrumbLink href='/'>Home</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
 
           <BreadcrumbItem>
-            <BreadcrumbLink href='/markets' className='text-lg'>
-              Markets
-            </BreadcrumbLink>
+            <BreadcrumbLink href='/markets'>Markets</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className='text-lg'>
+            <BreadcrumbPage>
               {params.slug[0].replace(/%20/g, ' ')}
             </BreadcrumbPage>
           </BreadcrumbItem>

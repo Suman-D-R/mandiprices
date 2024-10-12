@@ -33,13 +33,11 @@ export default function MarketsPage() {
       <Breadcrumb className='mb-6 '>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href='/' className='text-lg'>
-              Home
-            </BreadcrumbLink>
+            <BreadcrumbLink href='/'>Home</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className='text-lg'>Markets</BreadcrumbPage>
+            <BreadcrumbPage>Markets</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
