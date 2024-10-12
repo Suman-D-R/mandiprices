@@ -69,14 +69,14 @@ export default function Footer() {
                   FAQ
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href='/api'
                   className='text-sm text-gray-600 hover:text-gray-900'
                 >
                   API Access
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   href='/terms'

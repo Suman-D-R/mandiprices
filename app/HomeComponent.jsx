@@ -49,6 +49,7 @@ import {
   TrendingUp,
   RotateCcw,
   Filter,
+  SlidersHorizontal,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -328,13 +329,6 @@ export default function EnhancedHomeComponent() {
 
   const uniqueCommodities = [...new Set(data.map((item) => item.commodity))];
 
-  const toggleCardExpansion = (index) => {
-    setExpandedCards((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-  };
-
   const formatPrice = (price) => {
     let numPrice = Number(price);
     if (numPrice <= 1000) {
@@ -370,6 +364,25 @@ export default function EnhancedHomeComponent() {
       </TableBody>
     </Table>
   );
+
+  function DataItem({ label, value }) {
+    return (
+      <div>
+        <p className='text-xs font-medium text-muted-foreground'>{label}</p>
+        <p className='text-sm font-medium truncate'>{value}</p>
+      </div>
+    );
+  }
+
+  function PriceItem({ label, value, unit }) {
+    return (
+      <div className='text-center'>
+        <p className='text-xs font-medium text-muted-foreground'>{label}</p>
+        <p className='text-sm font-bold'>{value}</p>
+        <p className='text-xs text-muted-foreground'>/{unit}</p>
+      </div>
+    );
+  }
 
   const chartConfig = {
     minPrice: {
@@ -446,12 +459,22 @@ export default function EnhancedHomeComponent() {
         </div>
 
         <div className='flex flex-wrap justify-between items-center mb-4 gap-4'>
-          <Input
-            placeholder='Search...'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className='w-full md:w-64'
-          />
+          <span className='w-full flex gap-2 lg:w-fit'>
+            <Input
+              placeholder='Search...'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className='w-full md:w-64'
+            />
+            <div className='lg:hidden'>
+              <Button
+                onClick={() => setIsFilterSheetOpen(true)}
+                variant='outline'
+              >
+                <SlidersHorizontal className=' h-4 w-4' />
+              </Button>
+            </div>
+          </span>
           <div className='flex gap-4'>
             <span className='hidden md:block'>
               <Button
@@ -802,83 +825,49 @@ export default function EnhancedHomeComponent() {
               {getCurrentPageData().map((item, index) => (
                 <Card key={index} className='overflow-hidden'>
                   <CardHeader className='p-4'>
-                    <CardTitle className='text-lg flex justify-between items-center'>
-                      <span className='truncate flex items-center'>
-                        <Image
-                          src={getCommodityImage(item.commodity)}
-                          alt={item.commodity}
-                          width={20}
-                          height={20}
-                          className='mr-2'
-                        />
+                    <CardTitle className='text-lg flex items-center space-x-2'>
+                      <span className='truncate'>
                         {`${(currentPage - 1) * itemsPerPage + index + 1}. ${
                           item.commodity
                         }`}
                       </span>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => toggleCardExpansion(index)}
-                      >
-                        {expandedCards[index] ? (
-                          <ChevronUp className='h-4 w-4' />
-                        ) : (
-                          <ChevronDown className='h-4 w-4' />
-                        )}
-                      </Button>
+                      <Image
+                        src={getCommodityImage(item.commodity)}
+                        alt={item.commodity}
+                        width={24}
+                        height={24}
+                      />
                     </CardTitle>
                   </CardHeader>
                   <CardContent className='p-4 pt-0'>
-                    <div className='grid grid-cols-2 gap-2'>
-                      <div>
-                        <p className='text-sm font-medium'>State:</p>
-                        <p className='text-sm truncate'>{item.state}</p>
-                      </div>
-                      <div>
-                        <p className='text-sm font-medium'>District:</p>
-                        <p className='text-sm truncate'>{item.district}</p>
-                      </div>
-                      <div>
-                        <p className='text-sm font-medium'>Market:</p>
-                        <p className='text-sm truncate'>{item.market}</p>
-                      </div>
-                      <div>
-                        <p className='text-sm font-medium'>Variety:</p>
-                        <p className='text-sm truncate'>{item.variety}</p>
-                      </div>
+                    <div className='grid grid-cols-2 gap-y-3'>
+                      <DataItem label='State' value={item.state} />
+                      <DataItem label='District' value={item.district} />
+                      <DataItem label='Market' value={item.market} />
+                      <DataItem label='Variety' value={item.variety} />
+                      <DataItem label='Grade' value={item.grade} />
+                      <DataItem
+                        label='Arrival Date'
+                        value={item.arrival_date}
+                      />
                     </div>
-                    {expandedCards[index] && (
-                      <div className='mt-4 grid grid-cols-2 gap-2'>
-                        <div>
-                          <p className='text-sm font-medium'>Grade:</p>
-                          <p className='text-sm truncate'>{item.grade}</p>
-                        </div>
-                        <div>
-                          <p className='text-sm font-medium'>Arrival Date:</p>
-                          <p className='text-sm truncate'>
-                            {item.arrival_date}
-                          </p>
-                        </div>
-                        <div>
-                          <p className='text-sm font-medium'>Min Price:</p>
-                          <p className='text-sm truncate'>
-                            {formatPrice(item.min_price)}/{priceUnit}
-                          </p>
-                        </div>
-                        <div>
-                          <p className='text-sm font-medium'>Max Price:</p>
-                          <p className='text-sm truncate'>
-                            {formatPrice(item.max_price)}/{priceUnit}
-                          </p>
-                        </div>
-                        <div>
-                          <p className='text-sm font-medium'>Modal Price:</p>
-                          <p className='text-sm truncate'>
-                            {formatPrice(item.modal_price)}/{priceUnit}
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                    <div className='mt-4 grid grid-cols-3 gap-2 bg-muted p-2 rounded-md'>
+                      <PriceItem
+                        label='Min'
+                        value={formatPrice(item.min_price)}
+                        unit={priceUnit}
+                      />
+                      <PriceItem
+                        label='Max'
+                        value={formatPrice(item.max_price)}
+                        unit={priceUnit}
+                      />
+                      <PriceItem
+                        label='Modal'
+                        value={formatPrice(item.modal_price)}
+                        unit={priceUnit}
+                      />
+                    </div>
                   </CardContent>
                 </Card>
               ))}
