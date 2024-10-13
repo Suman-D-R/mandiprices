@@ -357,7 +357,7 @@ function Page() {
         </BreadcrumbList>
       </Breadcrumb>
       <div className={`min-h-screen bg`}>
-        <div className='container mx-auto p-4'>
+        <div className='container mx-auto '>
           <h2 className='text-2xl font-semibold mb-4'>
             Price's of Various Commodities in{' '}
             {params.slug[0].replace(/%20/g, ' ')}
