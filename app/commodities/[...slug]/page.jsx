@@ -64,7 +64,14 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { getCommodityImage } from '@/lib/utils';
-import { commoditiesArray } from '@/lib/constants';
+import {
+  commoditiesArray,
+  marketsArray,
+  statesArray,
+  districtsArray,
+  varietiesArray,
+  gradesArray,
+} from '@/lib/constants';
 
 // Add these new components
 const TableSkeleton = () => (
@@ -87,6 +94,13 @@ const MobileCardSkeleton = () => (
 
 function Page() {
   const params = useParams();
+  const commodity = params.slug[0].replace(/%20/g, ' ');
+
+  //capitalize the every word 1st letter
+  const capitalizedCommodity = commodity
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 
   // Initialize state variables
   const [apiParams, setApiParams] = useState({
@@ -95,7 +109,7 @@ function Page() {
     limit: 2000,
     offset: null,
     filters: {
-      'District.keyword': params.slug[0].replace(/%20/g, ' '),
+      'Commodity.keyword': capitalizedCommodity,
     },
     range: {
       Arrival_Date: {
@@ -130,9 +144,7 @@ function Page() {
   const [expandedCards, setExpandedCards] = useState({});
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [error, setError] = useState(null);
-
-  // Dummy data for dropdowns (replace with actual data)
-  const markets = ['Market 1', 'Market 2'];
+  const [selectedState, setSelectedState] = useState('all');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -167,6 +179,30 @@ function Page() {
           delete newFilters['Commodity.keyword'];
         }
 
+        if (selectedMarket !== 'all') {
+          newFilters['Market.keyword'] = selectedMarket;
+        } else {
+          delete newFilters['Market.keyword'];
+        }
+
+        if (selectedState !== 'all') {
+          newFilters['State.keyword'] = selectedState;
+        } else {
+          delete newFilters['State.keyword'];
+        }
+
+        if (selectedVariety !== 'all') {
+          newFilters['Variety.keyword'] = selectedVariety;
+        } else {
+          delete newFilters['Variety.keyword'];
+        }
+
+        if (selectedGrade !== 'all') {
+          newFilters['Grade.keyword'] = selectedGrade;
+        } else {
+          delete newFilters['Grade.keyword'];
+        }
+
         return {
           ...prevParams,
           filters: newFilters,
@@ -179,7 +215,15 @@ function Page() {
         };
       });
     }
-  }, [selectedDateFrom, selectedDateTo, selectedCommodity]);
+  }, [
+    selectedDateFrom,
+    selectedDateTo,
+    selectedCommodity,
+    selectedMarket,
+    selectedState,
+    selectedVariety,
+    selectedGrade,
+  ]);
 
   const sortData = (key) => {
     let direction = 'ascending';
@@ -202,6 +246,7 @@ function Page() {
     setPriceUnit('kg');
     setSelectedMarket('all');
     setSelectedCommodity('all');
+    setSelectedState('all');
     setSelectedVariety('all');
     setSelectedGrade('all');
     setItemsPerPage(10);
@@ -366,7 +411,7 @@ function Page() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value='all'>All Markets</SelectItem>
-                  {markets.map((market) => (
+                  {marketsArray.map((market) => (
                     <SelectItem key={market} value={market}>
                       {market}
                     </SelectItem>
@@ -385,6 +430,50 @@ function Page() {
                   {commoditiesArray.map((commodity) => (
                     <SelectItem key={commodity} value={commodity}>
                       {commodity}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedState} onValueChange={setSelectedState}>
+                <SelectTrigger className='w-[200px]'>
+                  <SelectValue placeholder='Select State' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All States</SelectItem>
+                  {statesArray.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={selectedVariety}
+                onValueChange={setSelectedVariety}
+              >
+                <SelectTrigger className='w-[200px]'>
+                  <SelectValue placeholder='Select Variety' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All Varieties</SelectItem>
+                  {varietiesArray.map((variety) => (
+                    <SelectItem key={variety} value={variety}>
+                      {variety}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+                <SelectTrigger className='w-[200px]'>
+                  <SelectValue placeholder='Select Grade' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All Grades</SelectItem>
+                  {gradesArray.map((grade) => (
+                    <SelectItem key={grade} value={grade}>
+                      {grade}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -719,6 +808,72 @@ function Page() {
                   Adjust your search filters here
                 </SheetDescription>
               </SheetHeader>
+              <div className='py-4 space-y-4'>
+                {/* Add the new Select components here */}
+                <Select
+                  value={selectedMarket}
+                  onValueChange={setSelectedMarket}
+                >
+                  <SelectTrigger className='w-full'>
+                    <SelectValue placeholder='Select Market' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Markets</SelectItem>
+                    {marketsArray.map((market) => (
+                      <SelectItem key={market} value={market}>
+                        {market}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedState} onValueChange={setSelectedState}>
+                  <SelectTrigger className='w-full'>
+                    <SelectValue placeholder='Select State' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All States</SelectItem>
+                    {statesArray.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={selectedVariety}
+                  onValueChange={setSelectedVariety}
+                >
+                  <SelectTrigger className='w-full'>
+                    <SelectValue placeholder='Select Variety' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Varieties</SelectItem>
+                    {varietiesArray.map((variety) => (
+                      <SelectItem key={variety} value={variety}>
+                        {variety}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+                  <SelectTrigger className='w-full'>
+                    <SelectValue placeholder='Select Grade' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Grades</SelectItem>
+                    {gradesArray.map((grade) => (
+                      <SelectItem key={grade} value={grade}>
+                        {grade}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Add other existing filters here */}
+              </div>
             </SheetContent>
           </Sheet>
         </div>
@@ -726,4 +881,5 @@ function Page() {
     </div>
   );
 }
+
 export default Page;

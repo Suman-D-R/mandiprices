@@ -3,11 +3,10 @@ import { Metadata } from 'next';
 
 export async function generateMetadata({ params }) {
   const slug = params.slug;
-  const district = slug[0].replace(/%20/g, ' '); // Assuming the first part of the slug is the district name
-  const commodity = slug[1] || 'vegetables'; // If there's a second part, use it as the commodity, otherwise default to 'vegetables'
+  const name = slug[0].replace(/%20/g, ' ');
 
-  const title = `${district} ${commodity} commodity prices | MandiPrices.in`;
-  const description = `${commodity} prices  in ${district} district. Get the latest mandi rates and market information for ${district}.`;
+  const title = `${name} prices in all markets | MandiPrices.in`;
+  const description = `${name} prices history in all mandi markets. Get the latest mandi rates and market information for mandiprices.in.`;
 
   return {
     title,
@@ -22,7 +21,7 @@ export async function generateMetadata({ params }) {
           url: 'https://mandiprices.in/og-image.jpg',
           width: 1200,
           height: 630,
-          alt: `${district} Mandi Prices`,
+          alt: `${name} Mandi Prices`,
         },
       ],
     },
@@ -32,7 +31,7 @@ export async function generateMetadata({ params }) {
       description,
       images: ['https://mandiprices.in/twitter-image.jpg'],
     },
-    keywords: `${district} mandi prices, ${commodity} prices, agricultural market rates, ${district} vegetable prices, mandi rates`,
+    keywords: `${name} mandi prices, ${name} prices, agricultural market rates, ${name} vegetable prices, mandi rates`,
   };
 }
 
