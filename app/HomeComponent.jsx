@@ -123,7 +123,7 @@ export default function EnhancedHomeComponent() {
   const [showChart, setShowChart] = useState(false);
   const [selectedCommodity, setSelectedCommodity] = useState('all');
   const [expandedCards, setExpandedCards] = useState({});
-  const [priceUnit, setPriceUnit] = useState('kg');
+  const [priceUnit, setPriceUnit] = useState('quintal');
 
   // Add new state variables for API parameters
   const [selectedState, setSelectedState] = useState('all');
