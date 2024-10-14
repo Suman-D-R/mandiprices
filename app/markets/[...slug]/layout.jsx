@@ -6,7 +6,7 @@ export async function generateMetadata({ params }) {
   const district = slug[0].replace(/%20/g, ' '); // Assuming the first part of the slug is the district name
   const commodity = slug[1] || 'vegetables'; // If there's a second part, use it as the commodity, otherwise default to 'vegetables'
 
-  const title = `${district} ${commodity} commodity prices | MandiPrices.in`;
+  const title = `${district} ${commodity} commodity prices | RMC rates in ${district} | wholesale market  ${commodity}  rates in ${district}`;
   const description = `${commodity} prices  in ${district} district. Get the latest mandi rates and market information for ${district}.`;
 
   return {
