@@ -87,6 +87,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import Link from 'next/link';
 
 // Add this new component for mobile skeleton
 const MobileCardSkeleton = () => (
@@ -452,6 +453,14 @@ export default function EnhancedHomeComponent() {
         <h2 className='text-2xl font-semibold mb-4'>
           Current Daily Price of Various Commodities
         </h2>
+        <p className='text-sm text-muted-foreground/50 italic mb-4'>
+          The displayed data is sourced from the{' '}
+          <Link className='underline' href='https://data.gov.in/'>
+            data.gov.in
+          </Link>{' '}
+          open-source platform. There may occasionally be human errors, so the
+          prices shown might sometimes be incorrect.
+        </p>
 
         {/* Add this new div to display the total number of entries */}
         <div className='text-sm text-muted-foreground mb-4'>

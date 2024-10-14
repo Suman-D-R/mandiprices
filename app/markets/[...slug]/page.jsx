@@ -65,6 +65,7 @@ import {
 } from 'lucide-react';
 import { getCommodityImage } from '@/lib/utils';
 import { commoditiesArray } from '@/lib/constants';
+import Link from 'next/link';
 
 // Add these new components
 const TableSkeleton = () => (
@@ -317,7 +318,14 @@ function Page() {
             Price's of Various Commodities in{' '}
             {params.slug[0].replace(/%20/g, ' ')}
           </h2>
-
+          <p className='text-sm text-muted-foreground/50 italic mb-4'>
+            The displayed data is sourced from the{' '}
+            <Link className='underline' href='https://data.gov.in/'>
+              data.gov.in
+            </Link>{' '}
+            open-source platform. There may occasionally be human errors, so the
+            prices shown might sometimes be incorrect.
+          </p>
           {/* Add this new div to display the total number of entries */}
           <div className='text-sm text-muted-foreground mb-4'>
             Total entries: {filteredData.length}
