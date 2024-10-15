@@ -1,5 +1,5 @@
-import HomeComponent from '../HomeComponent';
-import { StoreProvider } from '../context/store';
+import HomeComponent from './HomeComponent';
+import { StoreProvider } from './context/store';
 import { Metadata } from 'next';
 
 export const metadata = {
