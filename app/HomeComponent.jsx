@@ -88,6 +88,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import Link from 'next/link';
+import { useParams, useSearchParams } from 'next/navigation';
 
 // Add this new component for mobile skeleton
 const MobileCardSkeleton = () => (
@@ -125,6 +126,7 @@ export default function EnhancedHomeComponent() {
   const [selectedCommodity, setSelectedCommodity] = useState('all');
   const [expandedCards, setExpandedCards] = useState({});
   const [priceUnit, setPriceUnit] = useState('quintal');
+  const { slug } = useParams();
 
   // Add new state variables for API parameters
   const [selectedState, setSelectedState] = useState('all');
@@ -142,6 +144,18 @@ export default function EnhancedHomeComponent() {
   const [limit, setLimit] = useState(20000);
 
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  const district = districtsArray?.filter(
+    (district) => district?.toLowerCase() === slug?.[0]?.toLowerCase()
+  );
+
+  useEffect(() => {
+    if (district && district.length > 0) {
+      setSelectedDistrict(district[0]);
+    }
+    setIsInitialized(true);
+  }, [district]);
 
   const params = {
     'api-key': '579b464db66ec23bdd00000122ff16e7e3394772573f4047cabb7e79',
@@ -163,6 +177,9 @@ export default function EnhancedHomeComponent() {
   };
 
   useEffect(() => {
+    if (!isInitialized) return;
+
+    console.log(params);
     const fetchData = async () => {
       setIsLoading(true);
       const response = await GET(
@@ -182,6 +199,7 @@ export default function EnhancedHomeComponent() {
     };
     fetchData();
   }, [
+    isInitialized,
     selectedState,
     selectedDistrict,
     selectedMarket,
