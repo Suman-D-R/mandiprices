@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 
 export const metadata = {
   title:
-    'Mandi Prices today | Live RMC vegetables / commodity prices | vegetables market prices',
+    'Mandi rates today | Live RMC  vegetables rates  | vegetables market rates',
   description:
     'Get the latest mandi prices for vegetables and commodities with real-time updates. Check today’s market rates for RMC vegetables and stay informed on price trends in your local area.',
   openGraph: {
