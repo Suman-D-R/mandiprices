@@ -1,9 +1,19 @@
-# *
+# Global rules
 User-agent: *
+
+# Allow search engine crawlers
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Slurp
+User-agent: DuckDuckBot
 Allow: /
+
+# Crawl-delay directive (optional, adjust as needed)
+Crawl-delay: 10
 
 # Host
 Host: https://mandiprices.in
 
 # Sitemaps
 Sitemap: https://mandiprices.in/sitemap.xml
+Sitemap: https://mandiprices.in/sitemap-0.xml
